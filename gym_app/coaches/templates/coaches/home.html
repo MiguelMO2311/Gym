@@ -1,11 +1,12 @@
-<!-- gym_app/templates/coaches/home.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Coaches</title>
-</head>
-<body>
-    <h1>Bienvenido a la página de Coaches</h1>
-    <p>Esta es la página de inicio para los coaches.</p>
-</body>
-</html>
+{% extends "home.html" %}
+
+{% block title %}Home de Coaches{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Home de Coaches</h1>
+</header>
+<main>
+    <p>Bienvenido a la página de coaches. Aquí puedes gestionar a los entrenadores.</p>
+</main>
+{% endblock %}

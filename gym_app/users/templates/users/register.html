@@ -1,14 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-</head>
-<body>
-    <h2>Register</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Register</button>
-    </form>
-</body>
-</html>
+{% extends "home.html" %}
+
+{% block title %}Registro{% endblock %}
+
+{% block content %}
+<div class="flex flex-col min-h-screen bg-gray-100">
+    <div class="flex-grow flex justify-center items-center">
+        <div class="bg-white rounded-lg shadow-md p-6" style="height: 400px; width: 33%; margin-left: 33%;">
+            <h2 class="text-2xl font-bold mb-6 text-center text-indigo-600">Registro</h2>
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                {{ user_form.as_p }}
+                <div>
+                    <label for="user_type" class="block text-sm font-medium text-gray-700">Tipo de Usuario:</label>
+                    <select name="user_type" id="user_type" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onchange="showFields(this.value)">
+                        <option value="">Seleccione...</option>
+                        <option value="athlete">Athlete</option>
+                        <option value="coach">Coach</option>
+                    </select>
+                </div>
+                <div id="athlete_fields" class="space-y-4" style="display:none;">
+                    {{ athlete_form.as_p }}
+                </div>
+                <div id="coach_fields" class="space-y-4" style="display:none;">
+                    {{ coach_form.as_p }}
+                </div>
+                <div class="flex justify-center">
+                    <button type="submit" class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition duration-200">
+                        Registrarse
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+function showFields(userType) {
+    document.getElementById('athlete_fields').style.display = (userType === 'athlete') ? 'block' : 'none';
+    document.getElementById('coach_fields').style.display = (userType === 'coach') ? 'block' : 'none';
+}
+</script>
+{% endblock %}

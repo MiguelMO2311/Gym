@@ -1,11 +1,62 @@
-<!-- gym_app/templates/chat/home.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Chat</title>
-</head>
-<body>
-    <h1>Bienvenido a la página de Chat</h1>
-    <p>Esta es la página de inicio para el chat.</p>
-</body>
-</html>
+{% extends "home.html" %}
+
+{% block title %}Chat con IA{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Chat con IA</h1>
+</header>
+<main>
+    <div class="container mt-4">
+        <div class="chat-box">
+            <!-- Mensajes del chat -->
+            <div id="chat-messages" class="border p-3" style="height: 300px; overflow-y: scroll;">
+                <!-- Aquí se mostrarán los mensajes del chat -->
+            </div>
+            <!-- Input del chat -->
+            <div class="mt-3">
+                <input type="text" id="chat-input" class="form-control" placeholder="Escribe tu mensaje aquí...">
+                <button id="send-button" class="btn btn-primary mt-2">Enviar</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Script para manejar el chat con IA -->
+<script>
+    const roomName = "default_room";  // Ajusta el nombre de la sala si es necesario
+    const chatSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const message = data.message;
+        const chatMessages = document.getElementById('chat-messages');
+        const botMessage = document.createElement('div');
+        botMessage.className = 'bot-message';
+        botMessage.textContent = 'IA: ' + message;
+        chatMessages.appendChild(botMessage);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.getElementById('send-button').onclick = function(e) {
+        const input = document.getElementById('chat-input').value;
+        chatSocket.send(JSON.stringify({
+            'message': input
+        }));
+
+        const chatMessages = document.getElementById('chat-messages');
+        const userMessage = document.createElement('div');
+        userMessage.className = 'user-message';
+        userMessage.textContent = 'Tú: ' + input;
+        chatMessages.appendChild(userMessage);
+
+        document.getElementById('chat-input').value = '';
+    };
+</script>
+{% endblock %}

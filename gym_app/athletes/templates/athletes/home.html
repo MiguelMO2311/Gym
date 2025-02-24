@@ -1,11 +1,12 @@
-<!-- gym_app/templates/athletes/home.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Athletes</title>
-</head>
-<body>
-    <h1>Bienvenido a la página de Athletes</h1>
-    <p>Esta es la página de inicio para los athletes.</p>
-</body>
-</html>
+{% extends "home.html" %}
+
+{% block title %}Home de Atletas{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Home de Atletas</h1>
+</header>
+<main>
+    <p>Bienvenido a la página de atletas. Aquí puedes gestionar a los deportistas.</p>
+</main>
+{% endblock %}

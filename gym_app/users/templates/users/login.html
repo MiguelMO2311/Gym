@@ -1,14 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
+{% extends "home.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
     <h2>Login</h2>
-    <form method="post">
+    <form method="post" novalidate>
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Login</button>
+        <button type="submit" class="btn btn-primary">Login</button>
     </form>
-</body>
-</html>
+    {% if messages %}
+        <div class="alert alert-danger" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
