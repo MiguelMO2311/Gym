@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'gym_app.athletes',
     'gym_app.chat',
     'gym_app.users',
+    
 ]
 
 
@@ -77,6 +78,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gym.wsgi.application'
 
+
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # Password validation
@@ -114,6 +124,14 @@ USE_TZ = True
 
 # Configuración de archivos estáticos
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'gym_app/static'),
+]
+
+# En producción, usa STATIC_ROOT
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Configuración de archivos multimedia
 MEDIA_URL = '/media/'

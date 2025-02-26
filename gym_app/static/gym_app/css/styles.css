@@ -1,0 +1,11 @@
+/* styles.css */
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background: linear-gradient(to bottom, rgba(248, 249, 250, 1) 0%, rgba(248, 249, 250, 0) 50px), 
+                url('/static/gym_app/images/ImageLandingPage.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
