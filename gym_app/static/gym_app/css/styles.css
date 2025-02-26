@@ -1,11 +1,42 @@
 /* styles.css */
+.navbar {
+    background-color: rgb(84, 83, 83);
+    max-height: 90px;
+}
+
+
 body {
     margin: 0;
     padding: 0;
     height: 100vh;
-    background: linear-gradient(to bottom, rgba(248, 249, 250, 1) 0%, rgba(248, 249, 250, 0) 50px), 
-                url('/static/gym_app/images/ImageLandingPage.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+}
+
+.background-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 800px;
+    /* opacity: 0.5; Opacidad del 50% */
+    background: url('/static/gym_app/images/ImageLandingPage.jpg') center center/cover no-repeat;
+    z-index: -1; /* Coloca la imagen detrás del contenido */
+}
+
+.content-container {
+    flex: 1; /* Hace que el contenido principal ocupe el espacio disponible */
+    z-index: 1; /* Coloca el contenido por delante de la imagen */
+}
+
+.footer {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    min-height: 80px;
+    background-color: #f8f9fa; /* Cambia el color según tus necesidades */
+    padding: 10px 0;
+    text-align: center;
+    z-index: 2;
+    background-color: rgb(84, 83, 83);
 }
