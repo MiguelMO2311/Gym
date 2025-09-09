@@ -1,12 +1,44 @@
 {% extends "base.html" %}
 
-{% block title %}Home de Atletas{% endblock %}
+{% block title %}Panel de Atletas{% endblock %}
 
 {% block content %}
-<header>
-    <h1>Home de Atletas</h1>
-</header>
-<main>
-    <p>Bienvenido a la página de atletas. Aquí puedes gestionar a los deportistas.</p>
-</main>
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h1 class="display-4">Bienvenido, Atleta</h1>
+        <p class="lead">Aquí puedes gestionar tus actividades, ver tu perfil y comunicarte con tus entrenadores.</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Mis Actividades</h5>
+                    <p class="card-text">Consulta y gestiona las actividades en las que estás inscrito.</p>
+                    <a href="{% url 'activity_list' %}" class="btn btn-outline-primary">Ver Actividades</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Mi Perfil</h5>
+                    <p class="card-text">Edita tu información personal y actualiza tu imagen de perfil.</p>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-success">Ver Perfil</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Chat con Coach</h5>
+                    <p class="card-text">Comunícate directamente con tus entrenadores.</p>
+                    <a href="{% url 'chat_home' %}" class="btn btn-outline-info">Ir al Chat</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

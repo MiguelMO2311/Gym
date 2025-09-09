@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Actividades del Gimnasio{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h1 class="text-center mb-4">Actividades Disponibles</h1>
+
+  {% if activities %}
+    <div class="row">
+      {% for activity in activities %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ activity.name }}</h5>
+              <p class="card-text">{{ activity.description|truncatewords:20 }}</p>
+              <p class="mb-2"><strong>Coach:</strong> {{ activity.coach.user.username }}</p>
+              <a href="{% url 'activity_detail' activity.id %}" class="btn btn-outline-primary mt-auto">Ver Detalles</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center" role="alert">
+      No hay actividades disponibles en este momento.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

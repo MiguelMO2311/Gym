@@ -1,12 +1,47 @@
 {% extends "base.html" %}
 
-{% block title %}Home de Coaches{% endblock %}
+{% block title %}Panel de Entrenadores{% endblock %}
 
 {% block content %}
-<header>
-    <h1>Home de Coaches</h1>
-</header>
-<main>
-    <p>Bienvenido a la página de coaches. Aquí puedes gestionar a los entrenadores.</p>
-</main>
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h1 class="display-5">Bienvenido, Coach</h1>
+        <p class="lead">Aquí puedes gestionar tus actividades, ver tu perfil y comunicarte con tus atletas.</p>
+    </div>
+
+    <div class="row">
+        <!-- Actividades -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Mis Actividades</h5>
+                    <p class="card-text">Crea, edita y consulta las actividades que diriges.</p>
+                    <a href="{% url 'activity_list' %}" class="btn btn-outline-primary">Ver Actividades</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Perfil -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Mi Perfil</h5>
+                    <p class="card-text">Consulta y actualiza tu información como entrenador.</p>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-success">Ver Perfil</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Chat con Atletas</h5>
+                    <p class="card-text">Comunícate directamente con los deportistas que entrenas.</p>
+                    <a href="{% url 'chat_home' %}" class="btn btn-outline-info">Ir al Chat</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
