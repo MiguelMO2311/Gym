@@ -9,12 +9,22 @@
   {% if activities %}
     <div class="row">
       {% for activity in activities %}
-        <div class="col-md-6 col-lg-4 mb-4">
+        <div class="col-md-6 col-lg-3 mb-4"> <!-- 4 cards por fila -->
           <div class="card shadow-sm h-100">
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">{{ activity.name }}</h5>
-              <p class="card-text">{{ activity.description|truncatewords:20 }}</p>
-              <p class="mb-2"><strong>Coach:</strong> {{ activity.coach.user.username }}</p>
+            {% if activity.image %}
+              <img src="{{ activity.image.url }}" class="card-img-top" alt="{{ activity.name }}"
+                   style="height: 150px; object-fit: cover;">
+            {% else %}
+              <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center text-white"
+                   style="height: 150px;">
+                <span>Sin imagen</span>
+              </div>
+            {% endif %}
+
+            <div class="card-body d-flex flex-column text-dark">
+              <h5 class="card-title" style="color: #212529;">{{ activity.name }}</h5>
+              <p class="card-text" style="color: #212529;">{{ activity.description|truncatewords:20 }}</p>
+              <p class="mb-2" style="color: #212529;"><strong>Coach:</strong> {{ activity.coach.user.username }}</p>
               <a href="{% url 'activity_detail' activity.id %}" class="btn btn-outline-primary mt-auto">Ver Detalles</a>
             </div>
           </div>

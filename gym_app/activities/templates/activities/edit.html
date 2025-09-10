@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Actividad{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h2>Editar actividad: {{ activity.name }}</h2>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a href="{% url 'activity_detail' activity.id %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Actividad{% endblock %}
+
+{% block content %}
+<style>
+  .detail-wrapper {
+    height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem;
+    color: #212529;
+    overflow: hidden;
+  }
+
+  .detail-content {
+    display: flex;
+    gap: 2rem;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .detail-image {
+    flex: 1;
+    max-width: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .detail-image img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+  }
+
+  .detail-text {
+    flex: 2;
+    overflow-y: auto;
+  }
+
+  .btn-group-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+  }
+
+  .btn-group-actions a {
+    min-width: 160px;
+    text-align: center;
+  }
+</style>
+
+<div class="container-fluid">
+  <div class="detail-wrapper">
+    <div class="detail-content">
+      <div class="detail-image">
+        {% if activity.image %}
+          <img src="{{ activity.image.url }}" alt="{{ activity.name }}">
+        {% else %}
+          <div class="bg-secondary text-white p-3 rounded">Sin imagen</div>
+        {% endif %}
+      </div>
+
+      <div class="detail-text">
+        <h1>{{ activity.name }}</h1>
+        <p><strong>Descripción:</strong> {{ activity.description }}</p>
+        <p><strong>Día:</strong> {{ activity.get_day_display }}</p>
+        <p><strong>Horario:</strong> {{ activity.start_time }} - {{ activity.end_time }}</p>
+        <p><strong>Coach:</strong> {{ activity.coach.user.username }}</p>
+
+        <hr>
+        <h4>Atletas inscritos:</h4>
+        {% if athletes %}
+          <ul>
+            {% for athlete in athletes %}
+              <li>{{ athlete.user.username }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>No hay atletas inscritos aún.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="btn-group-actions">
+      <a href="{% url 'activities_list' %}" class="btn btn-success">← Volver a actividades</a>
+      <a href="{% url 'activity_edit' activity.id %}" class="btn btn-warning">✏️ Editar actividad</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
