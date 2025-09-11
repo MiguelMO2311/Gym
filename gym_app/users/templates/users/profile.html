@@ -1,17 +1,88 @@
 {% extends "base.html" %}
-
-{% block title %}Perfil de Usuario{% endblock %}
-
+{% load static %}
+{% block title %}Perfil{% endblock %}
 {% block content %}
-<div class="container mt-5">
-    <h2 class="text-center">Perfil de Usuario</h2>
-    <form method="post" class="form">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="text-center">
-            <button type="submit" class="btn btn-primary">Actualizar</button>
-            <a href="{% url 'delete_profile' %}" class="btn btn-danger">Eliminar Cuenta</a>
+<div class="bg-white text-dark p-4 rounded shadow">
+    <h2 class="text-center mb-4 text-warning font-weight-bold">Tu Perfil</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="text-center mb-4">
+        <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'gym_app/images/default.png' %}{% endif %}" alt="Imagen de perfil" class="rounded-circle shadow" width="100" height="100">
+        <h4 class="mt-2">{{ user.username }}</h4>
+        <p class="text-muted">{{ user.user_type|title }}</p>
+    </div>
+
+    {% if is_editing %}
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group mb-3">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small">
+                            {% for error in field.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-warning font-weight-bold px-4 py-2">
+                    Guardar cambios
+                </button>
+            </div>
+        </form>
+    {% else %}
+        <div class="text-center mb-4">
+            <a href="{% url 'users:profile' %}?edit=true" class="btn btn-outline-success mr-2">Editar Perfil</a>
         </div>
-    </form>
+    {% endif %}
+
+    <hr>
+
+    <h4 class="text-warning">Actividades</h4>
+    {% if activities %}
+        <ul class="list-group mb-4">
+            {% for activity in activities %}
+                <li class="list-group-item">{{ activity.name }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No tienes actividades registradas.</p>
+    {% endif %}
+
+    {% if related_athletes %}
+        <h4 class="text-warning">Atletas Asignados</h4>
+        <ul class="list-group mb-4">
+            {% for athlete in related_athletes %}
+                <li class="list-group-item">{{ athlete.user.username }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if related_coaches %}
+        <h4 class="text-warning">Entrenadores Asignados</h4>
+        <ul class="list-group mb-4">
+            {% for coach in related_coaches %}
+                <li class="list-group-item">{{ coach.user.username }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="{% url 'chat_home' %}" class="btn btn-outline-info">Ir al Chat</a>
+    </div>
 </div>
 {% endblock %}

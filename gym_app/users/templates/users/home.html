@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<div class="bg-white text-dark p-4 rounded shadow mt-4">
+    <h2 class="text-center mb-4 text-warning font-weight-bold">Bienvenido a Sports App</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="text-center">
+        <p class="lead">
+            Tu viaje hacia una vida más activa y saludable comienza aquí.  
+            Sports App es más que una plataforma: es tu compañero de entrenamiento, tu red de apoyo, y tu espacio para crecer.
+        </p>
+        <p>
+            Explora actividades, conecta con coaches y atletas, y alcanza tus metas con energía, motivación y comunidad.
+        </p>
+        <hr>
+        <p class="font-italic text-muted">
+            “No se trata de ser el mejor, sino de ser mejor que ayer.”
+        </p>
+    </div>
+</div>
+{% endblock %}

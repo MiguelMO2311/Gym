@@ -1,42 +1,131 @@
 {% extends "base.html" %}
-
 {% block title %}Registro{% endblock %}
-
 {% block content %}
-<div class="flex flex-col min-h-screen bg-gray-100">
-    <div class="flex-grow flex justify-center items-center">
-        <div class="bg-white rounded-lg shadow-md p-6" style="height: 400px; width: 33%; margin-left: 33%;">
-            <h2 class="text-2xl font-bold mb-6 text-center text-indigo-600">Registro</h2>
-            <form method="post" class="space-y-4">
-                {% csrf_token %}
-                {{ user_form.as_p }}
-                <div>
-                    <label for="user_type" class="block text-sm font-medium text-gray-700">Tipo de Usuario:</label>
-                    <select name="user_type" id="user_type" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" onchange="showFields(this.value)">
-                        <option value="">Seleccione...</option>
-                        <option value="athlete">Athlete</option>
-                        <option value="coach">Coach</option>
-                    </select>
-                </div>
-                <div id="athlete_fields" class="space-y-4" style="display:none;">
-                    {{ athlete_form.as_p }}
-                </div>
-                <div id="coach_fields" class="space-y-4" style="display:none;">
-                    {{ coach_form.as_p }}
-                </div>
-                <div class="flex justify-center">
-                    <button type="submit" class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition duration-200">
-                        Registrarse
-                    </button>
-                </div>
-            </form>
+<style>
+.hidden-block {
+    display: none;
+}
+
+</style>
+
+<div class="bg-white text-dark p-4 rounded shadow">
+    <h2 class="text-center mb-4 text-warning font-weight-bold">Registro</h2>
+
+    <!-- Mensajes generales -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Errores específicos -->
+    {% if user_form.errors %}
+        <div class="alert alert-danger">
+            <strong>Errores en el formulario de usuario:</strong>
+            <ul>
+                {% for field in user_form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
         </div>
-    </div>
+    {% endif %}
+
+    {% if coach_form.errors %}
+        <div class="alert alert-danger">
+            <strong>Errores en el formulario de coach:</strong>
+            <ul>
+                {% for field in coach_form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if athlete_form.errors %}
+        <div class="alert alert-danger">
+            <strong>Errores en el formulario de atleta:</strong>
+            <ul>
+                {% for field in athlete_form %}
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <!-- Formulario -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in user_form %}
+            {% if field.name != 'user_type' %}
+                <div class="form-group mb-3">
+                    {{ field.label_tag }}
+                    {{ field }}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Campo user_type -->
+        <div class="form-group mb-3">
+            <label for="user_type">Tipo de Usuario:</label>
+            <select name="user_type" id="user_type" class="form-control" required onchange="showFields(this.value)">
+                <option value="">Seleccione...</option>
+                <option value="athlete">Athlete</option>
+                <option value="coach">Coach</option>
+            </select>
+        </div>
+
+        <!-- Campos condicionales -->
+        <div id="athlete_fields" class="hidden-block">
+            {% for field in athlete_form %}
+                <div class="form-group mb-3">
+                    {{ field.label_tag }}
+                    {{ field }}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div id="coach_fields" class="hidden-block">
+            {% for field in coach_form %}
+                <div class="form-group mb-3">
+                    {{ field.label_tag }}
+                    {{ field }}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-warning font-weight-bold px-4 py-2">
+                Registrarse
+            </button>
+        </div>
+    </form>
 </div>
+
 <script>
 function showFields(userType) {
-    document.getElementById('athlete_fields').style.display = (userType === 'athlete') ? 'block' : 'none';
-    document.getElementById('coach_fields').style.display = (userType === 'coach') ? 'block' : 'none';
+    const athlete = document.getElementById('athlete_fields');
+    const coach = document.getElementById('coach_fields');
+
+    athlete.style.display = 'none';
+    coach.style.display = 'none';
+
+    if (userType === 'athlete') {
+        athlete.style.display = 'block';
+    } else if (userType === 'coach') {
+        coach.style.display = 'block';
+    }
 }
 </script>
 {% endblock %}
