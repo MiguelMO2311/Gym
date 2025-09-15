@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 # Usuario personalizado
 class User(AbstractUser):
     USER_TYPES = (
@@ -10,8 +11,9 @@ class User(AbstractUser):
     user_type = models.CharField(max_length=10, choices=USER_TYPES)
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
 
-    # Relación con actividades (como participante)
-    activities = models.ManyToManyField('Activity', related_name='participants', blank=True)
+    # # Relación con actividades (como participante)
+    # activities = models.ManyToManyField('activities.Activity', related_name='participants', blank=True)
+
 
     def __str__(self):
         return self.username
@@ -40,8 +42,9 @@ class Activity(models.Model):
     description = models.TextField(blank=True)
     date = models.DateTimeField()
 
-    # Relación con coach
+    # Relación con user
     coach = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'user_type': 'coach'})
+
 
     # Relación con atletas
     athletes = models.ManyToManyField(User, related_name='enrolled_activities', limit_choices_to={'user_type': 'athlete'}, blank=True)

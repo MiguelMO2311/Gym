@@ -2,87 +2,185 @@
 {% load static %}
 {% block title %}Perfil{% endblock %}
 {% block content %}
-<div class="bg-white text-dark p-4 rounded shadow">
-    <h2 class="text-center mb-4 text-warning font-weight-bold">Tu Perfil</h2>
+<style>
+    .profile-wrapper {
+        max-width: 960px;
+        margin: auto;
+        max-height: 90vh;
+        overflow-y: auto;
+        background: #fff;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: row;
+        gap: 2rem;
+    }
+    .profile-left {
+        flex: 1;
+        text-align: center;
+        border-right: 1px solid #eee;
+        padding-right: 1rem;
+    }
+    .profile-left img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+        box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    }
+    .profile-right {
+        flex: 2;
+        padding-left: 1rem;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .activities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        color: #333;
+        background: #f8f9fa;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        box-shadow: inset 0 0 1px rgba(0,0,0,0.1);
+    }
+    .btn-save {
+        margin-top: 2rem;
+        text-align: center;
+    }
+    .btn-save button {
+        background-color: #ffc107;
+        color: #fff;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .btn-save button:hover {
+        background-color: #ffca2c;
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+</style>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <div class="text-center mb-4">
-        <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'gym_app/images/default.png' %}{% endif %}" alt="Imagen de perfil" class="rounded-circle shadow" width="100" height="100">
-        <h4 class="mt-2">{{ user.username }}</h4>
+<div class="profile-wrapper">
+    <div class="profile-left">
+        <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'gym_app/images/default.png' %}{% endif %}" alt="Imagen de perfil">
+        <h4 class="mt-3">{{ user.username }}</h4>
         <p class="text-muted">{{ user.user_type|title }}</p>
     </div>
 
-    {% if is_editing %}
-        <form method="post">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="form-group mb-3">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {% if field.errors %}
-                        <div class="text-danger small">
-                            {% for error in field.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+    <div class="profile-right">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-light" role="alert"
+                     style="background-color: {% if message.tags == 'error' %}#dc3545{% else %}#28a745{% endif %};">
+                    {{ message|safe }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
             {% endfor %}
-            <div class="text-center mt-4">
-                <button type="submit" class="btn btn-warning font-weight-bold px-4 py-2">
-                    Guardar cambios
-                </button>
+        {% endif %}
+
+        {% if form.errors %}
+            <div class="alert alert-warning">
+                <strong>Errores detectados:</strong>
+                <pre>{{ form.errors }}</pre>
             </div>
-        </form>
-    {% else %}
-        <div class="text-center mb-4">
-            <a href="{% url 'users:profile' %}?edit=true" class="btn btn-outline-success mr-2">Editar Perfil</a>
-        </div>
-    {% endif %}
+        {% endif %}
 
-    <hr>
+        {% if is_editing %}
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form.visible_fields %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">
+                                {% for error in field.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
 
-    <h4 class="text-warning">Actividades</h4>
-    {% if activities %}
-        <ul class="list-group mb-4">
-            {% for activity in activities %}
-                <li class="list-group-item">{{ activity.name }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p class="text-muted">No tienes actividades registradas.</p>
-    {% endif %}
+                {% if user.user_type == 'athlete' %}
+                    <label class="font-weight-bold mb-2">Actividades</label>
+                    <div class="activities-grid">
+                        {% for activity in activities %}
+                            <label class="activity-item">
+                                <input type="checkbox" name="activities" value="{{ activity.id }}"
+                                       {% if activity in user.enrolled_activities.all %}checked{% endif %}>
+                                {{ activity.name }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-    {% if related_athletes %}
-        <h4 class="text-warning">Atletas Asignados</h4>
-        <ul class="list-group mb-4">
-            {% for athlete in related_athletes %}
-                <li class="list-group-item">{{ athlete.user.username }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+                <div class="btn-save">
+                    <button type="submit" class="btn font-weight-bold px-4 py-2">
+                        Guardar cambios
+                    </button>
+                </div>
+            </form>
+        {% else %}
+            <div class="text-right mb-3">
+                <a href="{% url 'users:profile' %}?edit=true" class="btn btn-outline-success">Editar Perfil</a>
+            </div>
 
-    {% if related_coaches %}
-        <h4 class="text-warning">Entrenadores Asignados</h4>
-        <ul class="list-group mb-4">
-            {% for coach in related_coaches %}
-                <li class="list-group-item">{{ coach.user.username }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+            {% if user.user_type == 'athlete' %}
+                {% if user.enrolled_activities.all %}
+                    <label class="font-weight-bold mb-2">Actividades</label>
+                    <ul class="list-inline">
+                        {% for activity in user.enrolled_activities.all %}
+                            <li class="list-inline-item badge badge-info p-2 m-1">{{ activity.name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No tienes actividades registradas.</p>
+                {% endif %}
+            {% elif user.user_type == 'coach' %}
+                {% if activities %}
+                    <label class="font-weight-bold mb-2">Actividades como entrenador</label>
+                    <ul class="list-inline">
+                        {% for activity in activities %}
+                            <li class="list-inline-item badge badge-warning p-2 m-1">{{ activity.name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No tienes actividades asignadas como entrenador.</p>
+                {% endif %}
+            {% endif %}
+        {% endif %}
 
-    <div class="text-center mt-4">
-        <a href="{% url 'chat_home' %}" class="btn btn-outline-info">Ir al Chat</a>
+        {% if related_athletes %}
+            <label class="font-weight-bold mt-3 mb-2">Atletas Asignados</label>
+            <ul class="list-inline">
+                {% for athlete in related_athletes %}
+                    <li class="list-inline-item badge badge-secondary p-2 m-1">{{ athlete }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if related_coaches %}
+            <label class="font-weight-bold mt-3 mb-2">Entrenadores Asignados</label>
+            <ul class="list-inline">
+                {% for coach in related_coaches %}
+                    <li class="list-inline-item badge badge-secondary p-2 m-1">{{ coach }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

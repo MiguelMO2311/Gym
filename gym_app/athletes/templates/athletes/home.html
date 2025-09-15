@@ -6,7 +6,7 @@
 <div class="container py-4">
     <div class="text-center mb-4">
         <h1 class="display-4">Bienvenido, Atleta</h1>
-        <p class="lead">Aquí puedes gestionar tus actividades, ver tu perfil y comunicarte con tus entrenadores.</p>
+        <p class="lead">Gestiona tus actividades, consulta tu perfil y comunícate con tus entrenadores.</p>
     </div>
 
     <div class="row">
@@ -26,7 +26,6 @@
                     <h5 class="card-title">Mi Perfil</h5>
                     <p class="card-text">Edita tu información personal y actualiza tu imagen de perfil.</p>
                     <a href="{% url 'users:profile' %}" class="btn btn-outline-success">Ver Perfil</a>
-
                 </div>
             </div>
         </div>
@@ -40,6 +39,17 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="mt-5">
+        <h4>Entrenadores Asociados</h4>
+        <ul class="list-group">
+            {% for coach in coaches %}
+                <li class="list-group-item">{{ coach }}</li>
+            {% empty %}
+                <li class="list-group-item text-muted">No hay entrenadores asociados actualmente.</li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
 {% endblock %}

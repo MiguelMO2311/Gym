@@ -5,21 +5,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import CustomUserCreationForm, CoachProfileForm, AthleteProfileForm
 from .models import User, CoachProfile, AthleteProfile
+from gym_app.activities.models import Activity
+from django.utils.html import format_html
 
 def logout_view(request):
     auth_logout(request)
     messages.success(request, "Has cerrado sesión correctamente.")
     return redirect('users:users_home')
 
-
 def users_home(request):
     return render(request, 'users/home.html')
 
-
-
 def register(request):
     if request.method == 'POST':
-        print("Datos recibidos:", request.POST)  # 👈 Esto te mostrará los datos en consola
+        print("Datos recibidos:", request.POST)
 
         user_form = CustomUserCreationForm(request.POST, request.FILES)
         user_type = request.POST.get('user_type')
@@ -45,7 +44,7 @@ def register(request):
                 athlete.save()
 
             messages.success(request, "Registro completado correctamente. ¡Bienvenido!")
-            return redirect('users_home')
+            return redirect('users:users_home')
         else:
             messages.error(request, "Hubo errores en el formulario. Por favor revisa los campos.")
     else:
@@ -81,28 +80,64 @@ def profile(request):
     if user.user_type == 'coach':
         profile_instance = get_object_or_404(CoachProfile, user=user)
         form_class = CoachProfileForm
-        related_athletes = AthleteProfile.objects.filter(user__activities__coach=user).distinct()
-        activities = user.activities.all()
+        coach_instance = CoachProfile.objects.get(user=user)
+        related_athletes = Activity.objects.filter(coach=coach_instance).values_list('athletes__username', flat=True).distinct()
+        related_coaches = None
     else:
         profile_instance = get_object_or_404(AthleteProfile, user=user)
         form_class = AthleteProfileForm
-        related_coaches = CoachProfile.objects.filter(user__activities__athletes=user).distinct()
-        activities = user.activities.all()
+        related_coaches = user.enrolled_activities.values_list('coach__username', flat=True).distinct()
+        related_athletes = None
 
     if request.method == 'POST':
         form = form_class(request.POST, instance=profile_instance)
+        form.fields.pop('activities', None)  # 🔧 eliminar campo manualmente
+
         if form.is_valid():
             form.save()
-            messages.success(request, "Perfil actualizado correctamente.")
+
+            selected_raw = request.POST.getlist('activities')
+            print("🟡 Actividades recibidas (raw):", selected_raw)
+
+            try:
+                selected_ids = []
+                for item in selected_raw:
+                    print("🔍 Tipo:", type(item), "| Valor:", item)
+                    try:
+                        selected_ids.append(int(item))
+                    except (ValueError, TypeError):
+                        print("❌ Valor no convertible a entero:", item)
+                        continue
+
+                print("✅ IDs válidos:", selected_ids)
+                valid_activities = Activity.objects.filter(id__in=selected_ids)
+
+                if user.user_type == 'athlete':
+                    user.enrolled_activities.set(valid_activities)
+                elif user.user_type == 'coach':
+                    for activity in valid_activities:
+                        activity.coach = user
+                        activity.save()
+
+                messages.success(request, "Actividades actualizadas correctamente.")
+                return redirect('users:profile')
+
+            except Exception as e:
+                messages.error(request, format_html(
+                    "<span class='text-light'>Error al procesar las actividades seleccionadas: {}</span>", e
+                ))
+        else:
+            messages.error(request, "Hubo errores en el formulario. Por favor revisa los campos.")
     else:
         form = form_class(instance=profile_instance)
+        form.fields.pop('activities', None)
 
     context = {
         'form': form,
         'is_editing': is_editing,
-        'activities': activities,
-        'related_athletes': related_athletes if user.user_type == 'coach' else None,
-        'related_coaches': related_coaches if user.user_type == 'athlete' else None,
+        'activities': Activity.objects.all(),
+        'related_athletes': related_athletes,
+        'related_coaches': related_coaches,
     }
 
     return render(request, 'users/profile.html', context)
@@ -111,11 +146,47 @@ def profile(request):
 def delete_profile(request):
     user = request.user
 
-    if user.user_type == 'coach':
-        CoachProfile.objects.filter(user=user).delete()
-    elif user.user_type == 'athlete':
+    if user.user_type == 'athlete':
+        user.enrolled_activities.clear()
         AthleteProfile.objects.filter(user=user).delete()
+    elif user.user_type == 'coach':
+        Activity.objects.filter(coach=user).update(coach=None)
+        CoachProfile.objects.filter(user=user).delete()
 
     user.delete()
     messages.success(request, "Tu cuenta ha sido eliminada correctamente.")
-    return redirect('users_home')
+    return redirect('users:users_home')
+
+@login_required
+def athlete_panel(request):
+    user = request.user
+
+    if user.user_type != 'athlete':
+        return redirect('coach_home')  # redirige si no es atleta
+
+    athlete_profile = AthleteProfile.objects.filter(user=user).first()
+    activities = user.enrolled_activities.all()
+    coaches = activities.values_list('coach__username', flat=True).distinct()
+
+    return render(request, 'athletes/home.html', {
+        'athlete_profile': athlete_profile,
+        'activities': activities,
+        'coaches': coaches,
+    })
+
+@login_required
+def coach_panel(request):
+    user = request.user
+
+    if user.user_type != 'coach':
+        return redirect('athlete_home')  # redirige si no es coach
+
+    coach_profile = CoachProfile.objects.filter(user=user).first()
+    activities = Activity.objects.filter(coach=user)
+    athletes = activities.values_list('athletes__username', flat=True).distinct()
+
+    return render(request, 'coaches/home.html', {
+        'coach_profile': coach_profile,
+        'activities': activities,
+        'athletes': athletes,
+    })
