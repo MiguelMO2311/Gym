@@ -47,7 +47,7 @@ class Activity(models.Model):
 
 
     # Relación con atletas
-    athletes = models.ManyToManyField(User, related_name='enrolled_activities', limit_choices_to={'user_type': 'athlete'}, blank=True)
+    athletes = models.ManyToManyField(User, related_name='coach_enrolled_activities', limit_choices_to={'user_type': 'athlete'}, blank=True)
 
     def __str__(self):
         return self.name

@@ -11,7 +11,7 @@ def home(request):
 
     athlete_profile = AthleteProfile.objects.filter(user=user).first()
     activities = user.enrolled_activities.all()
-    coaches = activities.values_list('coach__username', flat=True).distinct()
+    coaches = activities.values_list('coach__user__username', flat=True).distinct()
 
     return render(request, 'athletes/home.html', {
         'athlete_profile': athlete_profile,

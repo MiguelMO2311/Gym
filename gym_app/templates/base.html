@@ -28,10 +28,17 @@
         
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link text-white" href="{% url 'coach_home' %}">Coaches</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="{% url 'athlete_home' %}">Athletes</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="{% url 'chat_home' %}">Chat</a></li>
-                <li class="nav-item"><a class="nav-link text-white" href="{% url 'activities_list' %}">Actividades</a></li>
+                {% if user.is_authenticated %}
+                    {% if user.user_type == 'coach' %}
+                        <li class="nav-item"><a class="nav-link text-white" href="{% url 'coach_home' %}">Coaches</a></li>
+                    {% elif user.user_type == 'athlete' %}
+                        <li class="nav-item"><a class="nav-link text-white" href="{% url 'athlete_home' %}">Athletes</a></li>
+                    {% endif %}
+                    <li class="nav-item"><a class="nav-link text-white" href="{% url 'chat_home' %}">Chat</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="{% url 'activities_list' %}">Actividades</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link text-white" href="{% url 'users:users_home' %}">Home</a></li>
+                {% endif %}
             </ul>
             <ul class="navbar-nav align-items-center">
                 {% if user.is_authenticated %}

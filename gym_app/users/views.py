@@ -5,8 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import CustomUserCreationForm, CoachProfileForm, AthleteProfileForm
 from .models import User, CoachProfile, AthleteProfile
+from gym_app.coaches.models import Coach  # ✅
 from gym_app.activities.models import Activity
 from django.utils.html import format_html
+
+# Import Coach model for use in profile and coach_panel views
 
 def logout_view(request):
     auth_logout(request)
@@ -72,26 +75,43 @@ def login(request):
         form = AuthenticationForm()
     return render(request, 'users/login.html', {'form': form})
 
+
 @login_required
 def profile(request):
     user = request.user
     is_editing = request.GET.get('edit') == 'true' or request.method == 'POST'
 
+    # Inicialización
+    profile_instance = None
+    form_class = None
+    related_athletes = None
+    related_coaches = None
+
+    # Lógica por tipo de usuario
     if user.user_type == 'coach':
         profile_instance = get_object_or_404(CoachProfile, user=user)
         form_class = CoachProfileForm
-        coach_instance = CoachProfile.objects.get(user=user)
-        related_athletes = Activity.objects.filter(coach=coach_instance).values_list('athletes__username', flat=True).distinct()
-        related_coaches = None
-    else:
+
+        try:
+            coach_instance = Coach.objects.get(user=user)
+            related_athletes = Activity.objects.filter(coach=coach_instance).values_list(
+                'athletes__username', flat=True
+            ).distinct()
+        except Coach.DoesNotExist:
+            related_athletes = []
+
+    elif user.user_type == 'athlete':
         profile_instance = get_object_or_404(AthleteProfile, user=user)
         form_class = AthleteProfileForm
-        related_coaches = user.enrolled_activities.values_list('coach__username', flat=True).distinct()
-        related_athletes = None
 
+        related_coaches = user.enrolled_activities.values_list(
+            'coach__user__username', flat=True
+        ).distinct()
+
+    # Procesamiento del formulario
     if request.method == 'POST':
         form = form_class(request.POST, instance=profile_instance)
-        form.fields.pop('activities', None)  # 🔧 eliminar campo manualmente
+        form.fields.pop('activities', None)  # 🔧 eliminar campo manualmente si está presente
 
         if form.is_valid():
             form.save()
@@ -114,10 +134,15 @@ def profile(request):
 
                 if user.user_type == 'athlete':
                     user.enrolled_activities.set(valid_activities)
+
                 elif user.user_type == 'coach':
-                    for activity in valid_activities:
-                        activity.coach = user
-                        activity.save()
+                    try:
+                        coach_instance = Coach.objects.get(user=user)
+                        for activity in valid_activities:
+                            activity.coach = coach_instance
+                            activity.save()
+                    except Coach.DoesNotExist:
+                        messages.error(request, "No se encontró el perfil de entrenador para asignar actividades.")
 
                 messages.success(request, "Actividades actualizadas correctamente.")
                 return redirect('users:profile')
@@ -130,7 +155,6 @@ def profile(request):
             messages.error(request, "Hubo errores en el formulario. Por favor revisa los campos.")
     else:
         form = form_class(instance=profile_instance)
-        form.fields.pop('activities', None)
 
     context = {
         'form': form,
@@ -138,6 +162,7 @@ def profile(request):
         'activities': Activity.objects.all(),
         'related_athletes': related_athletes,
         'related_coaches': related_coaches,
+        'user': user,  # ✅ Añadir esto
     }
 
     return render(request, 'users/profile.html', context)
@@ -166,7 +191,8 @@ def athlete_panel(request):
 
     athlete_profile = AthleteProfile.objects.filter(user=user).first()
     activities = user.enrolled_activities.all()
-    coaches = activities.values_list('coach__username', flat=True).distinct()
+    coaches = activities.values_list('coach__user__username', flat=True).distinct()
+
 
     return render(request, 'athletes/home.html', {
         'athlete_profile': athlete_profile,
@@ -178,12 +204,26 @@ def athlete_panel(request):
 def coach_panel(request):
     user = request.user
 
+    # Redirige si el usuario no es tipo coach
     if user.user_type != 'coach':
-        return redirect('athlete_home')  # redirige si no es coach
+        return redirect('athlete_home')
 
+    # Obtener perfil del coach
     coach_profile = CoachProfile.objects.filter(user=user).first()
-    activities = Activity.objects.filter(coach=user)
-    athletes = activities.values_list('athletes__username', flat=True).distinct()
+
+    # Obtener instancia del modelo Coach
+    try:
+        coach_instance = Coach.objects.get(user=user)
+    except Coach.DoesNotExist:
+        coach_instance = None
+
+    # Obtener actividades y atletas relacionados
+    if coach_instance:
+        activities = Activity.objects.filter(coach=coach_instance)
+        athletes = activities.values_list('athletes__username', flat=True).distinct()
+    else:
+        activities = Activity.objects.none()
+        athletes = []
 
     return render(request, 'coaches/home.html', {
         'coach_profile': coach_profile,

@@ -74,7 +74,7 @@
 <div class="profile-wrapper">
     <div class="profile-left">
         <img src="{% if user.profile_image %}{{ user.profile_image.url }}{% else %}{% static 'gym_app/images/default.png' %}{% endif %}" alt="Imagen de perfil">
-        <h4 class="mt-3">{{ user.username }}</h4>
+        <h4 class="mt-3">{{ profile_instance.user.username }}</h4>
         <p class="text-muted">{{ user.user_type|title }}</p>
     </div>
 

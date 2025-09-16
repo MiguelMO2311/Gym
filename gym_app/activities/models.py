@@ -19,7 +19,6 @@ class Activity(models.Model):
     day = models.CharField(max_length=1, choices=DAYS_OF_WEEK, default='L')
     start_time = models.TimeField(default='17:00')
     end_time = models.TimeField(default='18:00')
-    athletes = models.ManyToManyField('athletes.Athlete', related_name='enrolled_activities', blank=True)
-
+    athletes = models.ManyToManyField('users.User', related_name='enrolled_activities', blank=True, limit_choices_to={'user_type': 'athlete'})
     def __str__(self):
         return self.name
