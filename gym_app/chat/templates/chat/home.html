@@ -1,85 +1,78 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Chat con IA{% endblock %}
+{% block title %}Panel de Atletas{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="text-center mb-4">
-        <h1 class="display-5">Chat con IA</h1>
-        <p class="lead">Haz preguntas, conversa o simplemente prueba la inteligencia artificial.</p>
+        <h1 class="display-4">Bienvenido, Atleta</h1>
+        <p class="lead">Gestiona tus actividades, consulta tu perfil y comunícate con tus entrenadores.</p>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <!-- Mensajes del chat -->
-            <div id="chat-messages" class="border rounded p-3 mb-3 bg-light" style="height: 300px; overflow-y: auto;">
-                <!-- Aquí se mostrarán los mensajes -->
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Mis Actividades</h5>
+                    <p class="card-text">Consulta y gestiona las actividades en las que estás inscrito.</p>
+                    <a href="{% url 'activities_list' %}" class="btn btn-outline-primary">Ver Actividades</a>
+                </div>
             </div>
+        </div>
 
-            <!-- Input del chat -->
-            <div class="input-group">
-                <input type="text" id="chat-input" class="form-control" placeholder="Escribe tu mensaje aquí...">
-                <div class="input-group-append">
-                    <button id="send-button" class="btn btn-primary">Enviar</button>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Mi Perfil</h5>
+                    <p class="card-text">Edita tu información personal y actualiza tu imagen de perfil.</p>
+                    <a href="{% url 'users:profile' %}" class="btn btn-outline-success">Ver Perfil</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Chat con Coach</h5>
+                    <p class="card-text">Comunícate directamente con tus entrenadores.</p>
+                    <a href="#chat-section" class="btn btn-outline-info">Ir al Chat</a>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="mt-5">
+        <h4>Entrenadores Asociados</h4>
+        <ul class="list-group">
+            {% for coach in coaches %}
+                <li class="list-group-item">{{ coach }}</li>
+            {% empty %}
+                <li class="list-group-item text-muted">No hay entrenadores asociados actualmente.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- 🧠 Chat IA integrado -->
+    <div id="chat-section" class="mt-5">
+        <h4 class="mb-3">💬 Chat IA y Grupal</h4>
+        <div class="mb-3">
+            <label for="group-select" class="form-label">Selecciona grupo:</label>
+            <select id="group-select" class="form-select mb-3 text-dark" style="min-width: 250px;">
+                {% for g in groups %}
+                    <option value="{{ g.name }}" {% if forloop.first %}selected{% endif %}>{{ g.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="chat-box" class="border rounded p-3 bg-white text-dark mb-3" style="height: 300px; overflow-y: scroll;"></div>
+        <form id="chat-form">
+            <div class="input-group">
+                <input type="text" id="chat-input" class="form-control" placeholder="Escribe tu mensaje..." required>
+                <button class="btn btn-primary" type="submit">Enviar</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- Estilos opcionales para mensajes -->
-<style>
-    .user-message {
-        text-align: right;
-        margin-bottom: 10px;
-        color: #007bff;
-        font-weight: bold;
-    }
-    .bot-message {
-        text-align: left;
-        margin-bottom: 10px;
-        color: #28a745;
-        font-weight: bold;
-    }
-</style>
-
-<!-- Script para manejar el chat con IA -->
-<script>
-    const roomName = "default_room";
-    const chatSocket = new WebSocket(
-        'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
-    );
-
-    chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        const message = data.message;
-        const chatMessages = document.getElementById('chat-messages');
-        const botMessage = document.createElement('div');
-        botMessage.className = 'bot-message';
-        botMessage.textContent = 'IA: ' + message;
-        chatMessages.appendChild(botMessage);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    };
-
-    chatSocket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly');
-    };
-
-    document.getElementById('send-button').onclick = function(e) {
-        const inputField = document.getElementById('chat-input');
-        const input = inputField.value.trim();
-        if (input === '') return;
-
-        chatSocket.send(JSON.stringify({ 'message': input }));
-
-        const chatMessages = document.getElementById('chat-messages');
-        const userMessage = document.createElement('div');
-        userMessage.className = 'user-message';
-        userMessage.textContent = 'Tú: ' + input;
-        chatMessages.appendChild(userMessage);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        inputField.value = '';
-    };
-</script>
+<script src="{% static 'chat/chat.js' %}"></script>
 {% endblock %}

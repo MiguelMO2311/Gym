@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     'gym_app',
     'gym_app.activities',
     'gym_app.coaches',
@@ -45,8 +46,14 @@ INSTALLED_APPS = [
     'gym_app.chat',
     'gym_app.users',
     
+    'channels',
+    'crispy_forms',
+    
 ]
 
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+ASGI_APPLICATION = 'gym.asgi.application'  # si tu archivo asgi.py está en gym/
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # para pruebas
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load static %}
+
 
 {% block title %}Panel de Atletas{% endblock %}
 
@@ -35,7 +37,7 @@
                 <div class="card-body text-center">
                     <h5 class="card-title">Chat con Coach</h5>
                     <p class="card-text">Comunícate directamente con tus entrenadores.</p>
-                    <a href="{% url 'chat_home' %}" class="btn btn-outline-info">Ir al Chat</a>
+                    <a href="#chat-section" class="btn btn-outline-info">Ir al Chat</a>
                 </div>
             </div>
         </div>
@@ -51,5 +53,28 @@
             {% endfor %}
         </ul>
     </div>
+
+    <!-- 🧠 Chat IA integrado -->
+    <div id="chat-section" class="mt-5">
+        <h4 class="mb-3">💬 Chat IA y Grupal</h4>
+        <div class="mb-3">
+            <label for="group-select" class="form-label">Selecciona grupo:</label>
+            <select id="group-select" class="form-select mb-3 text-dark" style="min-width: 250px;">
+                {% for g in groups %}
+                    <option value="{{ g.name }}" {% if forloop.first %}selected{% endif %}>{{ g.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="chat-box" class="border rounded p-3 bg-white text-dark mb-3" style="height: 300px; overflow-y: scroll;">
+        <form id="chat-form">
+            <div class="input-group">
+                <input type="text" id="chat-input" class="form-control" placeholder="Escribe tu mensaje..." required>
+                <button class="btn btn-primary" type="submit">Enviar</button>
+            </div>
+        </form>
+    </div>
 </div>
+
+<!-- Carga del JS del chat -->
+<script src="{% static 'chat/chat.js' %}"></script>
 {% endblock %}
