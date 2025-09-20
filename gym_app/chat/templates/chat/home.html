@@ -6,7 +6,15 @@
 {% block content %}
 <div class="container py-4">
     <div class="text-center mb-4">
-        <h1 class="display-4">Bienvenido, Atleta</h1>
+       <h1 class="display-4">
+    {% if user.user_type == "coach" %}
+        Bienvenido, Entrenador
+    {% elif user.user_type == "athlete" %}
+        Bienvenido, Atleta
+    {% else %}
+        Bienvenido, Usuario
+    {% endif %}
+</h1>
         <p class="lead">Gestiona tus actividades, consulta tu perfil y comunícate con tus entrenadores.</p>
     </div>
 

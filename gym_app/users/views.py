@@ -67,14 +67,22 @@ def login(request):
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
-            messages.success(request, "Has iniciado sesión correctamente.")
-            return redirect('users:profile')
+
+            # Mensaje personalizado
+            if user.user_type == 'coach':
+                messages.success(request, "Has iniciado sesión como entrenador.")
+                return redirect('coach_home')  # o 'coach_panel'
+            elif user.user_type == 'athlete':
+                messages.success(request, "Has iniciado sesión como atleta.")
+                return redirect('athlete_home')  # o 'athlete_panel'
+            else:
+                messages.success(request, "Has iniciado sesión correctamente.")
+                return redirect('users:profile')
         else:
             messages.error(request, "Credenciales inválidas. Inténtalo de nuevo.")
     else:
         form = AuthenticationForm()
     return render(request, 'users/login.html', {'form': form})
-
 
 @login_required
 def profile(request):
