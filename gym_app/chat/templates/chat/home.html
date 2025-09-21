@@ -64,14 +64,19 @@
     <!-- 🧠 Chat IA integrado -->
     <div id="chat-section" class="mt-5">
         <h4 class="mb-3">💬 Chat IA y Grupal</h4>
-        <div class="mb-3">
-            <label for="group-select" class="form-label">Selecciona grupo:</label>
-            <select id="group-select" class="form-select mb-3 text-dark" style="min-width: 250px;">
-                {% for g in groups %}
-                    <option value="{{ g.name }}" {% if forloop.first %}selected{% endif %}>{{ g.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
+        <p class="text-muted">Grupos disponibles: {{ groups|length }}</p>
+        {% if groups %}
+            <div class="mb-3">
+                <label for="group-select" class="form-label">Selecciona grupo:</label>
+                <select id="group-select" class="form-select mb-3 text-dark" style="min-width: 250px;">
+                    {% for g in groups %}
+                        <option value="{{ g.name }}" {% if forloop.first %}selected{% endif %}>{{ g.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% else %}
+            <p class="text-muted">No tienes grupos asignados actualmente.</p>
+        {% endif %}
         <div id="chat-box" class="border rounded p-3 bg-white text-dark mb-3" style="height: 300px; overflow-y: scroll;"></div>
         <form id="chat-form">
             <div class="input-group">
@@ -82,5 +87,15 @@
     </div>
 </div>
 
-<script src="{% static 'chat/chat.js' %}"></script>
+<!-- 🎨 Estilos para asegurar visibilidad del texto -->
+<style>
+    #group-select option,
+    .list-group-item {
+        color: black !important;
+        background-color: white !important;
+    }
+</style>
+
+<script src="{% static 'chat/js/chat.js' %}"></script>
+
 {% endblock %}

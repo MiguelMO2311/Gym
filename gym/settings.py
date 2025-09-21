@@ -50,10 +50,17 @@ INSTALLED_APPS = [
     'crispy_forms',
     
 ]
+AUTH_USER_MODEL = 'users.User'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 ASGI_APPLICATION = 'gym.asgi.application'  # si tu archivo asgi.py está en gym/
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # para pruebas
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -84,7 +91,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'gym.wsgi.application'
+ASGI_APPLICATION = 'gym.asgi.application'
+
 
 
 # Database
@@ -150,7 +158,5 @@ LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/users/profile/'
 LOGOUT_REDIRECT_URL = '/users/login/'
 
-
-AUTH_USER_MODEL = 'users.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

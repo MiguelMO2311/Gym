@@ -1,16 +1,18 @@
 from django.db import models
-from django.conf import settings  # ← esto es clave
 
 class ChatGroup(models.Model):
     name = models.CharField(max_length=100)
-    members = models.ManyToManyField(settings.AUTH_USER_MODEL)  # ← corregido
+    members = models.ManyToManyField('users.User')  # ← referencia segura por string
 
     def __str__(self):
         return self.name
 
 class ChatMessage(models.Model):
-    ROLE_CHOICES = (('user', 'Usuario'), ('ai', 'IA'))
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # ← corregido
+    ROLE_CHOICES = (
+        ('user', 'Usuario'),
+        ('ai', 'IA'),
+    )
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE)  # ← también por string
     group = models.ForeignKey(ChatGroup, on_delete=models.CASCADE, null=True, blank=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     message = models.TextField()
