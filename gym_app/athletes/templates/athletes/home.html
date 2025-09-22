@@ -1,14 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
 
-
 {% block title %}Panel de Atletas{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="text-center mb-4">
-        <h1 class="display-4">Bienvenido, Atleta</h1>
-        <p class="lead">Gestiona tus actividades, consulta tu perfil y comunícate con tus entrenadores.</p>
+        <h1 class="display-4 text-dark">Bienvenido, Atleta</h1>
+        <p class="lead text-dark">Gestiona tus actividades, consulta tu perfil y comunícate con tus entrenadores.</p>
     </div>
 
     <div class="row">
@@ -36,45 +35,24 @@
             <div class="card shadow-sm h-100">
                 <div class="card-body text-center">
                     <h5 class="card-title">Chat con Coach</h5>
-                    <p class="card-text">Comunícate directamente con tus entrenadores.</p>
-                    <a href="#chat-section" class="btn btn-outline-info">Ir al Chat</a>
+                    <p class="card-text">Accede al módulo de chat para comunicarte con tus entrenadores.</p>
+                    <a href="{% url 'chat_home' %}" class="btn btn-outline-info">Ir al Chat</a>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="mt-5">
-        <h4>Entrenadores Asociados</h4>
+        <h4 class="text-dark">Entrenadores Asociados</h4>
         <ul class="list-group">
             {% for coach in coaches %}
-                <li class="list-group-item">{{ coach }}</li>
+                <li class="list-group-item" style="color: black; background-color: white;">
+                    {{ coach }}
+                </li>
             {% empty %}
                 <li class="list-group-item text-muted">No hay entrenadores asociados actualmente.</li>
             {% endfor %}
         </ul>
     </div>
-
-    <!-- 🧠 Chat IA integrado -->
-    <div id="chat-section" class="mt-5">
-        <h4 class="mb-3">💬 Chat IA y Grupal</h4>
-        <div class="mb-3">
-            <label for="group-select" class="form-label">Selecciona grupo:</label>
-            <select id="group-select" class="form-select mb-3 text-dark" style="min-width: 250px;">
-                {% for g in groups %}
-                    <option value="{{ g.name }}" {% if forloop.first %}selected{% endif %}>{{ g.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div id="chat-box" class="border rounded p-3 bg-white text-dark mb-3" style="height: 300px; overflow-y: scroll;">
-        <form id="chat-form">
-            <div class="input-group">
-                <input type="text" id="chat-input" class="form-control" placeholder="Escribe tu mensaje..." required>
-                <button class="btn btn-primary" type="submit">Enviar</button>
-            </div>
-        </form>
-    </div>
 </div>
-
-<!-- Carga del JS del chat -->
-<script src="{% static 'chat/chat.js' %}"></script>
 {% endblock %}

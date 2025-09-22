@@ -12,7 +12,6 @@ urlpatterns = [
     path('athletes/', include('gym_app.athletes.urls')),
     path('chat/', include('gym_app.chat.urls')), 
     path('users/', include('gym_app.users.urls')),
-    path('', views.base, name='base'), 
     path('', include('gym_app.urls')),
 ]
 

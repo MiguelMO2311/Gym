@@ -16,7 +16,12 @@ def logout_view(request):
     messages.success(request, "Has cerrado sesión correctamente.")
     return redirect('users:users_home')
 
+from django.contrib import messages
+
+from django.http import HttpResponse
+
 def users_home(request):
+    print("Cargando users_home")
     return render(request, 'users/home.html')
 
 def register(request):
@@ -195,12 +200,22 @@ def athlete_panel(request):
     user = request.user
 
     if user.user_type != 'athlete':
-        return redirect('coach_home')  # redirige si no es atleta
+        return redirect('coach_panel')  # redirige si no es atleta
 
+    # Perfil del atleta
     athlete_profile = AthleteProfile.objects.filter(user=user).first()
-    activities = user.enrolled_activities.all()
-    coaches = activities.values_list('coach__user__username', flat=True).distinct()
 
+    # Actividades en las que está inscrito
+    activities = Activity.objects.filter(athletes=user)
+
+    # Entrenadores asociados a esas actividades
+    coaches = activities.values_list('coach__username', flat=True).distinct()
+
+    return render(request, 'athletes/home.html', {
+        'athlete_profile': athlete_profile,
+        'activities': activities,
+        'coaches': coaches,  # ← esto alimenta la plantilla
+    })
 
     return render(request, 'athletes/home.html', {
         'athlete_profile': athlete_profile,
@@ -212,29 +227,22 @@ def athlete_panel(request):
 def coach_panel(request):
     user = request.user
 
-    # Redirige si el usuario no es tipo coach
     if user.user_type != 'coach':
-        return redirect('athlete_home')
+        return redirect('athlete_panel')
 
-    # Obtener perfil del coach
     coach_profile = CoachProfile.objects.filter(user=user).first()
 
-    # Obtener instancia del modelo Coach
-    try:
-        coach_instance = Coach.objects.get(user=user)
-    except Coach.DoesNotExist:
-        coach_instance = None
+    # Actividades dirigidas por este coach
+    activities = Activity.objects.filter(coach=user)
 
-    # Obtener actividades y atletas relacionados
-    if coach_instance:
-        activities = Activity.objects.filter(coach=coach_instance)
-        athletes = activities.values_list('athletes__username', flat=True).distinct()
-    else:
-        activities = Activity.objects.none()
-        athletes = []
+    # Atletas inscritos en esas actividades
+    athletes_set = set()
+    for activity in activities:
+        for athlete in activity.athletes.all():
+            athletes_set.add(athlete)
 
     return render(request, 'coaches/home.html', {
         'coach_profile': coach_profile,
         'activities': activities,
-        'athletes': athletes,
+        'athletes': sorted(athletes_set, key=lambda a: a.username),  # ordenados por nombre
     })

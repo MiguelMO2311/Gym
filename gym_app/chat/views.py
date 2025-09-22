@@ -28,6 +28,7 @@ def home(request):
     flagged = ChatMessage.objects.filter(flagged=True).order_by('-timestamp')
 
     return render(request, 'chat/home.html', {
+        'user': request.user,
         'groups': groups,
         'coaches': coaches,
         'stats': stats,

@@ -1,84 +1,168 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Panel de Atletas{% endblock %}
+{% block title %}
+    Chat – Sports App
+{% endblock %}
+
+{% block extra_head %}
+    <meta name="description" content="Comunicación directa entre entrenadores y atletas para mejorar el rendimiento y la motivación.">
+    <meta name="keywords" content="chat deportivo, entrenador, atleta, comunicación, Sports App">
+    <meta name="author" content="Sports App">
+    <meta property="og:title" content="Chat Deportivo">
+    <meta property="og:description" content="Espacio de comunicación entre entrenadores y atletas.">
+
+    {% comment %} <style>
+    /* Fondo general claro y texto oscuro */
+    body {
+        background-color: #f0f2f5 !important;
+        color: #212529 !important;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Contenedores principales */
+    .container-fluid, .saludo-usuario, .usuarios-asociados, #chat-section {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+
+    /* Títulos y encabezados */
+    h1, h4 {
+        color: #212529 !important;
+    }
+
+    /* Lista de usuarios asociados */
+    .list-group-item {
+        background-color: #e3f0ff !important;
+        color: #000000 !important;
+        font-weight: 500;
+        border: 1px solid #c0d4f4;
+    }
+
+    /* Selectores y formularios */
+    .form-select, .form-control {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        border: 1px solid #ced4da;
+    }
+
+    /* Botones */
+    .btn {
+        color: #ffffff !important;
+    }
+
+    .btn-primary {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+    }
+
+    /* Chat box */
+    #chat-box {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+        max-height: 50vh;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+    }
+
+    /* Select options */
+    #group-select option {
+        background-color: #ffffff !important;
+        color: #212529 !important;
+    }
+
+    /* Alertas */
+    .alert {
+        background-color: #e9f7ff !important;
+        color: #212529 !important;
+        border: 1px solid #bde0fe;
+    }
+</style> {% endcomment %}
+
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="text-center mb-4">
-       <h1 class="display-4">
-    {% if user.user_type == "coach" %}
-        Bienvenido, Entrenador
-    {% elif user.user_type == "athlete" %}
-        Bienvenido, Atleta
-    {% else %}
-        Bienvenido, Usuario
-    {% endif %}
-</h1>
-        <p class="lead">Gestiona tus actividades, consulta tu perfil y comunícate con tus entrenadores.</p>
+<div class="container-fluid py-4">
+    <!-- Saludo personalizado -->
+    <div class="saludo-usuario text-center">
+        <h1 class="display-2 fw-bold">Hola {{ user.username }}</h1>
+        <p class="fs-4 fst-italic">“Cada mensaje puede acercarte a tu mejor versión. ¡Exprésate y evoluciona!”</p>
     </div>
 
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Mis Actividades</h5>
-                    <p class="card-text">Consulta y gestiona las actividades en las que estás inscrito.</p>
-                    <a href="{% url 'activities_list' %}" class="btn btn-outline-primary">Ver Actividades</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Mi Perfil</h5>
-                    <p class="card-text">Edita tu información personal y actualiza tu imagen de perfil.</p>
-                    <a href="{% url 'users:profile' %}" class="btn btn-outline-success">Ver Perfil</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Chat con Coach</h5>
-                    <p class="card-text">Comunícate directamente con tus entrenadores.</p>
-                    <a href="#chat-section" class="btn btn-outline-info">Ir al Chat</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-5">
-        <h4>Entrenadores Asociados</h4>
-        <ul class="list-group">
-            {% for coach in coaches %}
-                <li class="list-group-item">{{ coach }}</li>
-            {% empty %}
-                <li class="list-group-item text-muted">No hay entrenadores asociados actualmente.</li>
-            {% endfor %}
+    <!-- Usuarios asociados -->
+    <div class="usuarios-asociados text-center">
+        <h4 class="mb-4">
+            {% if user.user_type == "coach" %}
+                Atletas Asociados
+            {% elif user.user_type == "athlete" %}
+                Entrenadores Asociados
+            {% else %}
+                Usuarios Asociados
+            {% endif %}
+        </h4>
+        <ul class="list-group list-group-flush mx-auto" style="max-width: 600px;">
+            {% if user.user_type == "coach" %}
+                {% for athlete in athletes %}
+                    <li class="list-group-item custom-visible text-center">{{ athlete }}</li>
+                {% empty %}
+                    <li class="list-group-item text-muted text-center">No hay atletas asociados actualmente.</li>
+                {% endfor %}
+            {% elif user.user_type == "athlete" %}
+                {% for coach in coaches %}
+                    <li class="list-group-item custom-visible text-center">{{ coach }}</li>
+                {% empty %}
+                    <li class="list-group-item text-muted text-center">No hay entrenadores asociados actualmente.</li>
+                {% endfor %}
+            {% else %}
+                <li class="list-group-item text-muted text-center">No hay datos disponibles para tu rol.</li>
+            {% endif %}
         </ul>
     </div>
 
-    <!-- 🧠 Chat IA integrado -->
+    <!-- Chat grupal -->
     <div id="chat-section" class="mt-5">
-        <h4 class="mb-3">💬 Chat IA y Grupal</h4>
-        <p class="text-muted">Grupos disponibles: {{ groups|length }}</p>
-        {% if groups %}
-            <div class="mb-3">
-                <label for="group-select" class="form-label">Selecciona grupo:</label>
-                <select id="group-select" class="form-select mb-3 text-dark" style="min-width: 250px;">
-                    {% for g in groups %}
-                        <option value="{{ g.name }}" {% if forloop.first %}selected{% endif %}>{{ g.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        {% else %}
-            <p class="text-muted">No tienes grupos asignados actualmente.</p>
-        {% endif %}
-        <div id="chat-box" class="border rounded p-3 bg-white text-dark mb-3" style="height: 300px; overflow-y: scroll;"></div>
-        <form id="chat-form">
+        <h4 class="mb-3 text-center">💬 Chat IA y Grupal</h4>
+
+        <!-- Mensaje de bienvenida al chat -->
+        <div class="mb-4 mx-auto" style="max-width: 700px;">
+            {% if user.user_type == "coach" %}
+                <div class="alert alert-info text-dark text-center">
+                    <strong>Bienvenido al chat grupal, Entrenador.</strong><br>
+                    Comunícate directamente con tus atletas, comparte indicaciones y mantén la motivación del grupo.
+                </div>
+            {% elif user.user_type == "athlete" %}
+                <div class="alert alert-info text-dark text-center">
+                    <strong>Bienvenido al chat grupal, Atleta.</strong><br>
+                    Interactúa con tus entrenadores, recibe orientación personalizada y fortalece tu rendimiento.
+                </div>
+            {% else %}
+                <div class="alert alert-secondary text-dark text-center">
+                    <strong>Bienvenido al chat.</strong><br>
+                    Accede a tus grupos y comunícate según tu rol en la plataforma.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Selector de grupo -->
+        <div class="mb-3 text-center">
+            <label for="group-select" class="form-label">Selecciona grupo:</label>
+            <select id="group-select" class="form-select text-dark mx-auto" style="max-width: 300px;">
+                {% for g in groups %}
+                    <option value="{{ g.name }}" {% if forloop.first %}selected{% endif %}>{{ g.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Caja de chat -->
+        <div id="chat-box" class="border rounded p-3 bg-white text-dark mb-3 mx-auto" style="max-width: 900px;">
+        </div>
+
+        <!-- Formulario de envío -->
+        <form id="chat-form" class="mx-auto" style="max-width: 900px;">
             <div class="input-group">
                 <input type="text" id="chat-input" class="form-control" placeholder="Escribe tu mensaje..." required>
                 <button class="btn btn-primary" type="submit">Enviar</button>
@@ -87,15 +171,5 @@
     </div>
 </div>
 
-<!-- 🎨 Estilos para asegurar visibilidad del texto -->
-<style>
-    #group-select option,
-    .list-group-item {
-        color: black !important;
-        background-color: white !important;
-    }
-</style>
-
 <script src="{% static 'chat/js/chat.js' %}"></script>
-
 {% endblock %}
